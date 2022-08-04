@@ -42,7 +42,7 @@
 
 + 3.使用ONNX2NCNN
 
-还是回到onnx2ncnn这条道路上来，为了让ncnn支持，我们去掉了检测head中anchor生成检测框的部分的内容，修改代买如下：
+还是回到onnx2ncnn这条道路上来，为了让ncnn支持，我们去掉了检测head中anchor生成检测框的部分的内容，修改代码如下：
 
 ```python
 #找到 effidehead.py
@@ -132,9 +132,14 @@ ncnnoptimize.exe yolov6n.param yolov6n.bin yolov6_opt.param yolov6n_opt.bin 6553
 
 |                                                              |                                                              |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| <video id="video" controls="" preload="none" poster="封面">       <source id="mp4" src="./docs/Screenrecorder-2022-08-04-18-08-30-540.mp4" type="video/mp4"> </videos> | <video id="video" controls="" preload="none" poster="封面">       <source id="mp4" src="./docs/Screenrecorder-2022-08-04-18-10-48-327.mp4" type="video/mp4"> </videos> |
+| 
+<img src="./docs/Screenrecorder-2022-08-04-18-08-30-540.gif"/>
+|
+<img src="./docs/Screenrecorder-2022-08-04-18-10-48-327.gif"/>
+ |
 
 
 
 ### 5.download
 
++ apk下载地址： <https://github.com/DataXujing/ncnn_android_yolov6/releases>
