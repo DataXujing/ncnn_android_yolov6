@@ -131,7 +131,7 @@ ncnnoptimize.exe yolov6n.param yolov6n.bin yolov6_opt.param yolov6n_opt.bin 6553
 
 ### 4.Demo
 
-| 小米手机 Demo1 | 小米手机 Deno2 |
+| 小米手机 Demo1 | 小米手机 Demo2 |
 | :-: | :-: |
 |<img src="./docs/Screenrecorder-2022-08-04-18-08-30-540.gif"/> | <img src="./docs/Screenrecorder-2022-08-04-18-10-48-327.gif"/>|
 
