@@ -1,4 +1,4 @@
-##  YOLOv6 安卓手机部署
+## YOLOv6 安卓手机部署
 
 
 
@@ -21,22 +21,24 @@
   如果直接转ONNX不成立，可否使用`torchscript->pnnx->ncnn`这条路是否可行呢？我们在YOLOv6的`export_onnx.py`中增加生成torchscript的代码：
 
   ````python
-      # TorchScript export  add by xujing
-      try:
-          print('\nStarting TorchScript export with torch %s...' % torch.__version__)
-          f = args.weights.replace('.pt', '.torchscript.pt')  # filename
-          ts = torch.jit.trace(model, img, strict=False)
-          ts.save(f)
-          print('TorchScript export success, saved as %s' % f)
-      except Exception as e:
-          print('TorchScript export failure: %s' % e)
+  
+  ````
+# TorchScript export  add by xujing
+try:
+    print('\nStarting TorchScript export with torch %s...' % torch.__version__)
+    f = args.weights.replace('.pt', '.torchscript.pt')  # filename
+    ts = torch.jit.trace(model, img, strict=False)
+    ts.save(f)
+    print('TorchScript export success, saved as %s' % f)
+except Exception as e:
+    print('TorchScript export failure: %s' % e)
   ````
 
   可以生成torchscript模型，然后使用PNNX转化工具
 
   ```shell
   pnnx yolov6n.torchscript.pt 
-  ```
+```
 
   可以正常实诚ncnn模型，但是在调用时发现仍然有不支持的操作，详细可以参考这个错误： <https://github.com/Tencent/ncnn/issues/4101>. 该错误目前我并没有解决方案。
 
@@ -47,38 +49,38 @@
 ```python
 #找到 effidehead.py
 #修改如下：else中注释部分是原来的，未注释的部分为修改的部分
-            if self.training:
-                x[i] = torch.cat([reg_output, obj_output, cls_output], 1)
-                bs, _, ny, nx = x[i].shape
-                x[i] = x[i].view(bs, self.na, self.no, ny, nx).permute(0, 1, 3, 4, 2).contiguous()
-            else:
-                # y = torch.cat([reg_output, obj_output.sigmoid(), cls_output.sigmoid()], 1)
-                # bs, _, ny, nx = y.shape
-                # y = y.view(bs, self.na, self.no, ny, nx).permute(0, 1, 3, 4, 2).contiguous()
-                # if self.grid[i].shape[2:4] != y.shape[2:4]:
-                #     d = self.stride.device
-                #     yv, xv = torch.meshgrid([torch.arange(ny).to(d), torch.arange(nx).to(d)])
-                #     self.grid[i] = torch.stack((xv, yv), 2).view(1, self.na, ny, nx, 2).float()
-                # if self.inplace:
-                #     y[..., 0:2] = (y[..., 0:2] + self.grid[i]) * self.stride[i]  # xy
-                #     y[..., 2:4] = torch.exp(y[..., 2:4]) * self.stride[i] # wh
-                # else:
-                #     xy = (y[..., 0:2] + self.grid[i]) * self.stride[i]  # xy
-                #     wh = torch.exp(y[..., 2:4]) * self.stride[i]  # wh
-                #     y = torch.cat((xy, wh, y[..., 4:]), -1)
-                # z.append(y.view(bs, -1, self.no))
-                # 修改之后
-                # https://blog.csdn.net/weixin_40920183/article/details/125532375
-                # x[i] = torch.cat([reg_output, obj_output, cls_output], 1)
-                x[i] = torch.cat([reg_output, obj_output.sigmoid(), cls_output.sigmoid()], 1)
-                bs, _, ny, nx = x[i].shape
-                # x(bs,255,20,20) to x(bs,1,20,20,85=80+5) (bs,na,ny,nx,no=nc+5=4+1+nc)
-                # x[i] = x[i].view(bs, self.na, self.no, ny, nx).permute(0, 1, 3, 4, 2).contiguous()
-                x[i] = x[i].view(bs, self.na, 85, -1).permute(0, 1, 3, 2).contiguous()  # (b,self.na,20x20,85) for NCNN
-                x[i] = x[i].view(bs, -1, 85)
-        return torch.cat(x, dim=1)  # (b,?,85)
+if self.training:
+    x[i] = torch.cat([reg_output, obj_output, cls_output], 1)
+    bs, _, ny, nx = x[i].shape
+    x[i] = x[i].view(bs, self.na, self.no, ny, nx).permute(0, 1, 3, 4, 2).contiguous()
+else:
+    # y = torch.cat([reg_output, obj_output.sigmoid(), cls_output.sigmoid()], 1)
+    # bs, _, ny, nx = y.shape
+    # y = y.view(bs, self.na, self.no, ny, nx).permute(0, 1, 3, 4, 2).contiguous()
+    # if self.grid[i].shape[2:4] != y.shape[2:4]:
+    #     d = self.stride.device
+    #     yv, xv = torch.meshgrid([torch.arange(ny).to(d), torch.arange(nx).to(d)])
+    #     self.grid[i] = torch.stack((xv, yv), 2).view(1, self.na, ny, nx, 2).float()
+    # if self.inplace:
+    #     y[..., 0:2] = (y[..., 0:2] + self.grid[i]) * self.stride[i]  # xy
+    #     y[..., 2:4] = torch.exp(y[..., 2:4]) * self.stride[i] # wh
+    # else:
+    #     xy = (y[..., 0:2] + self.grid[i]) * self.stride[i]  # xy
+    #     wh = torch.exp(y[..., 2:4]) * self.stride[i]  # wh
+    #     y = torch.cat((xy, wh, y[..., 4:]), -1)
+    # z.append(y.view(bs, -1, self.no))
+    # 修改之后
+    # https://blog.csdn.net/weixin_40920183/article/details/125532375
+    # x[i] = torch.cat([reg_output, obj_output, cls_output], 1)
+    x[i] = torch.cat([reg_output, obj_output.sigmoid(), cls_output.sigmoid()], 1)
+    bs, _, ny, nx = x[i].shape
+    # x(bs,255,20,20) to x(bs,1,20,20,85=80+5) (bs,na,ny,nx,no=nc+5=4+1+nc)
+    # x[i] = x[i].view(bs, self.na, self.no, ny, nx).permute(0, 1, 3, 4, 2).contiguous()
+    x[i] = x[i].view(bs, self.na, 85, -1).permute(0, 1, 3, 2).contiguous()  # (b,self.na,20x20,85) for NCNN
+    x[i] = x[i].view(bs, -1, 85)
+return torch.cat(x, dim=1)  # (b,?,85)
 
-        # return x if self.training else torch.cat(z, 1)
+# return x if self.training else torch.cat(z, 1)
 
 ```
 
@@ -130,13 +132,9 @@ ncnnoptimize.exe yolov6n.param yolov6n.bin yolov6_opt.param yolov6n_opt.bin 6553
 
 ### 4.Demo
 
-|                                                              |                                                              |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| 
-<img src="./docs/Screenrecorder-2022-08-04-18-08-30-540.gif"/>
-|
-<img src="./docs/Screenrecorder-2022-08-04-18-10-48-327.gif"/>
- |
+| 小米手机 Demo1 | 小米手机 Deno2 |
+| :-: | :-: |
+|<img src="./docs/Screenrecorder-2022-08-04-18-08-30-540.gif"/> | <img src="./docs/Screenrecorder-2022-08-04-18-10-48-327.gif"/>|
 
 
 
