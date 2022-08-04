@@ -20,9 +20,8 @@
 
   如果直接转ONNX不成立，可否使用`torchscript->pnnx->ncnn`这条路是否可行呢？我们在YOLOv6的`export_onnx.py`中增加生成torchscript的代码：
 
-  ````python
-  
-  ````
+```python
+
 # TorchScript export  add by xujing
 try:
     print('\nStarting TorchScript export with torch %s...' % torch.__version__)
@@ -32,11 +31,11 @@ try:
     print('TorchScript export success, saved as %s' % f)
 except Exception as e:
     print('TorchScript export failure: %s' % e)
-  ````
+```
 
   可以生成torchscript模型，然后使用PNNX转化工具
 
-  ```shell
+```shell
   pnnx yolov6n.torchscript.pt 
 ```
 
